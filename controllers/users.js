@@ -23,6 +23,24 @@ const getUsers = (req, res) => {
     });
 };
 
+// GET /users/me
+const getCurrentUser = (req, res) => {
+  const userId = req.user._id;
+
+  User.findById(userId)
+    .orFail()
+    .then((user) => res.status(200).send(user))
+    .catch((err) => {
+      console.error(err);
+      if (err.name === "DocumentNotFoundError") {
+        return res.status(NOT_FOUND).send({ message: "User not found" });
+      }
+      return res
+        .status(INTERNAL_SERVER_ERROR)
+        .send({ message: "An error has occurred on the server" });
+    });
+};
+
 // GET /users/:userId
 const getUserById = (req, res) => {
   const { userId } = req.params;
@@ -134,4 +152,4 @@ const login = (req, res) => {
     });
 };
 
-module.exports = { getUsers, getUserById, createUser, login };
+module.exports = { getUsers, getUserById, getCurrentUser, createUser, login };
