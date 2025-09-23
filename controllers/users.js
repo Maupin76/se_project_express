@@ -152,4 +152,38 @@ const login = (req, res) => {
     });
 };
 
-module.exports = { getUsers, getUserById, getCurrentUser, createUser, login };
+// PATCH /users/me — update profile (name, avatar)
+const updateCurrentUser = (req, res) => {
+  const { name, avatar } = req.body;
+
+  User.findByIdAndUpdate(
+    req.user._id,
+    { name, avatar },
+    { new: true, runValidators: true }
+  )
+    .orFail()
+    .then((user) => res.status(200).send(user))
+    .catch((err) => {
+      console.error(err);
+      if (err.name === "ValidationError") {
+        return res
+          .status(BAD_REQUEST)
+          .send({ message: "Invalid data passed to update user" });
+      }
+      if (err.name === "DocumentNotFoundError") {
+        return res.status(NOT_FOUND).send({ message: "User not found" });
+      }
+      return res
+        .status(INTERNAL_SERVER_ERROR)
+        .send({ message: "An error has occurred on the server" });
+    });
+};
+
+module.exports = {
+  getUsers,
+  getUserById,
+  getCurrentUser,
+  createUser,
+  login,
+  updateCurrentUser,
+};
