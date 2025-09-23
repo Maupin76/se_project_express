@@ -1,7 +1,6 @@
 const crypto = require("crypto");
 const { JWT_SECRET } = require("../utils/config");
 const { UNAUTHORIZED } = require("../utils/errors");
-const auth = require("../middlewares/auth");
 
 // base64url → Buffer
 const b64urlToBuffer = (str) => {
@@ -51,6 +50,7 @@ module.exports = (req, res, next) => {
     const payload = verifyJWT(token, JWT_SECRET);
     req.user = payload;
   } catch (err) {
+    console.error(err.message); // allowed by our ESLint rule
     return res.status(UNAUTHORIZED).send({ message: "Authorization required" });
   }
 
