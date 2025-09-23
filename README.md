@@ -1,6 +1,6 @@
 # WTWR (What to Wear?): Back End
 
-The back-end project is focused on creating a server for the WTWR application. You’ll gain a deeper understanding of how to work with databases, set up security and testing, and deploy web applications on a remote machine. The eventual goal is to create a server with an API and user authorization.
+The back-end project creates a server for the WTWR application. In Sprint 13, authentication and authorization are added on top of the Sprint 12 API.
 
 ## Prerequisites
 
@@ -11,21 +11,18 @@ The back-end project is focused on creating a server for the WTWR application. Y
 
 - Node.js, Express.js
 - MongoDB, Mongoose
-- validator (URL validation)
-- ESLint (Airbnb Base) + Prettier
-- Postman (test suite), GitHub Actions
-- EditorConfig
+- `validator` (URL/email validation)
+- **Auth:** JWT (HS256) with 7-day expiry, secret in `utils/config.js`
+- **CORS:** `cors` middleware
+- ESLint (Airbnb Base) + Prettier, EditorConfig
 - nodemon (hot reload for dev)
+- Postman test suite, GitHub Actions
 
 ## Running the Project
 
 ```bash
-npm ci           # or: npm install
-npm run dev      # start with hot reload (nodemon) on port 3001
+npm ci            # or: npm install
+npm run dev       # start with nodemon on port 3001
 # or
-npm run start    # start with node
-
-
-### Testing
-Before committing your code, make sure you edit the file `sprint.txt` in the root folder. The file `sprint.txt` should contain the number of the sprint you're currently working on. For ex. 12
+npm run start     # start with node
 ```
