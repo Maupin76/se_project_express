@@ -1,6 +1,7 @@
 const express = require("express");
 const mongoose = require("mongoose");
 const cors = require("cors");
+const { NOT_FOUND } = require("./utils/errors");
 const mainRouter = require("./routes/index");
 
 const app = express();
@@ -17,7 +18,7 @@ app.use("/", mainRouter);
 
 // Spec-required 404 text
 app.use((req, res) =>
-  res.status(404).send({ message: "Requested resource not found" })
+  res.status(NOT_FOUND).send({ message: "Requested resource not found" })
 );
 
 app.listen(PORT);
