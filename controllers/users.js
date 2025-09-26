@@ -19,6 +19,9 @@ const getCurrentUser = (req, res) => {
     .then((user) => res.status(200).send(user))
     .catch((err) => {
       console.error(err);
+      if (err.name === "CastError") {
+        return res.status(BAD_REQUEST).send({ message: "Invalid user ID" });
+      }
       if (err.name === "DocumentNotFoundError") {
         return res.status(NOT_FOUND).send({ message: "User not found" });
       }
@@ -66,14 +69,11 @@ const createUser = (req, res) => {
 
   hashPassword(password)
     .then((hashed) => User.create({ name, avatar, email, password: hashed }))
-    .then((user) =>
-      res.status(201).send({
-        _id: user._id,
-        name: user.name,
-        avatar: user.avatar,
-        email: user.email, // do NOT return password
-      })
-    )
+    .then((user) => {
+      const userObj = user.toObject();
+      delete userObj.password;
+      return res.status(201).send(userObj);
+    })
     .catch((err) => {
       console.error(err);
       if (err.code === 11000) {
@@ -98,7 +98,9 @@ const login = (req, res) => {
   const invalid = { message: "Incorrect email or password" };
 
   if (!email || !password) {
-    return res.status(UNAUTHORIZED).send(invalid);
+    return res
+      .status(BAD_REQUEST)
+      .send({ message: "Email and password required" });
   }
 
   return User.findUserByCredentials(email, password)
