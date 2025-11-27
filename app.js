@@ -1,8 +1,10 @@
 const express = require("express");
 const mongoose = require("mongoose");
 const cors = require("cors");
-const { NOT_FOUND } = require("./utils/errors");
+
+const { NotFoundError } = require("./utils/errors"); // <-- FIXED
 const mainRouter = require("./routes/index");
+const errorHandler = require("./middlewares/error-handler");
 
 const app = express();
 const { PORT = 3001 } = process.env;
@@ -16,10 +18,14 @@ app.use(express.json());
 
 app.use("/", mainRouter);
 
-// Spec-required 404 text
-app.use((req, res) =>
-  res.status(NOT_FOUND).send({ message: "Requested resource not found" })
-);
+// Fallback route — if no routes matched, throw a 404
+app.use((req, res, next) => {
+  next(new NotFoundError("Requested resource not found"));
+});
 
-app.listen(PORT);
-console.log(`App listening on port ${PORT}`);
+// Centralized error handler (must be the LAST middleware)
+app.use(errorHandler);
+
+app.listen(PORT, () => {
+  console.log(`App listening on port ${PORT}`);
+});

@@ -23,5 +23,8 @@ module.exports = {
   },
   rules: {
     "no-underscore-dangle": ["error", { allow: ["_id"] }],
+
+    // ✅ Required by Sprint 15 for error-handler middleware
+    "no-unused-vars": ["error", { argsIgnorePattern: "next" }],
   },
 };
