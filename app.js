@@ -1,8 +1,9 @@
 const express = require("express");
 const mongoose = require("mongoose");
 const cors = require("cors");
+const { errors } = require("celebrate");
 
-const { NotFoundError } = require("./utils/errors"); // <-- FIXED
+const { NotFoundError } = require("./utils/errors");
 const mainRouter = require("./routes/index");
 const errorHandler = require("./middlewares/error-handler");
 
@@ -22,6 +23,9 @@ app.use("/", mainRouter);
 app.use((req, res, next) => {
   next(new NotFoundError("Requested resource not found"));
 });
+
+// celebrate error handler (for validation errors from celebrate/Joi)
+app.use(errors());
 
 // Centralized error handler (must be the LAST middleware)
 app.use(errorHandler);
