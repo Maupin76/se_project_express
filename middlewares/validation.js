@@ -90,11 +90,16 @@ module.exports.validateLoginBody = celebrate({
  * 4. Validate IDs (user and clothing item) when they are accessed
  * - id must be a 24-character hex string
  */
-module.exports.validateId = celebrate({
+/**
+ * 4. Validate clothing item ID when it is accessed
+ * - itemId must be a 24-character hex string
+ */
+module.exports.validateItemId = celebrate({
   params: Joi.object().keys({
-    id: Joi.string().hex().length(24).messages({
-      "string.length": 'The "id" must be 24 characters long',
-      "string.hex": 'The "id" must be a hexadecimal string',
+    itemId: Joi.string().hex().length(24).required().messages({
+      "string.length": 'The "itemId" must be 24 characters long',
+      "string.hex": 'The "itemId" must be a hexadecimal string',
+      "any.required": 'The "itemId" parameter is required',
     }),
   }),
 });
