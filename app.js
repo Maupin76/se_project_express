@@ -1,9 +1,11 @@
 const express = require("express");
 const mongoose = require("mongoose");
 const cors = require("cors");
-const { errors } = require("celebrate");
 
+const { errors } = require("celebrate");
 const { NotFoundError } = require("./utils/errors");
+const { requestLogger, errorLogger } = require("./middlewares/logger");
+
 const mainRouter = require("./routes/index");
 const errorHandler = require("./middlewares/error-handler");
 
@@ -17,17 +19,24 @@ mongoose
 app.use(cors());
 app.use(express.json());
 
+// 🔹 Log all incoming requests
+app.use(requestLogger);
+
+// 🔹 Main routes
 app.use("/", mainRouter);
 
-// Fallback route — if no routes matched, throw a 404
+// 🔹 Log all errors that occur in routes/controllers
+app.use(errorLogger);
+
+// 🔹 Fallback route — if no routes matched, throw a 404
 app.use((req, res, next) => {
   next(new NotFoundError("Requested resource not found"));
 });
 
-// celebrate error handler (for validation errors from celebrate/Joi)
+// 🔹 celebrate error handler (for Joi/celebrate validation errors)
 app.use(errors());
 
-// Centralized error handler (must be the LAST middleware)
+// 🔹 Centralized error handler (for everything else)
 app.use(errorHandler);
 
 app.listen(PORT, () => {
