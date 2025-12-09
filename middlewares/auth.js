@@ -1,6 +1,6 @@
 const crypto = require("crypto");
 const { JWT_SECRET } = require("../utils/config");
-const { UNAUTHORIZED } = require("../utils/errors");
+const { UnauthorizedError } = require("../utils/errors");
 
 // base64url → Buffer
 const b64urlToBuffer = (str) => {
@@ -28,20 +28,23 @@ const verifyJWT = (token, secret) => {
 
   const payloadJson = b64urlToBuffer(payloadB64).toString("utf8");
   const payload = JSON.parse(payloadJson);
+
   if (
     typeof payload.exp === "number" &&
     Math.floor(Date.now() / 1000) >= payload.exp
   ) {
     throw new Error("Token expired");
   }
+
   return payload; // { _id, exp }
 };
 
 module.exports = (req, res, next) => {
   const { authorization } = req.headers;
 
+  // No header or wrong format → 401 via central error handler
   if (!authorization || !authorization.startsWith("Bearer ")) {
-    return res.status(UNAUTHORIZED).send({ message: "Authorization required" });
+    return next(new UnauthorizedError("Authorization Required"));
   }
 
   const token = authorization.replace("Bearer ", "");
@@ -50,8 +53,8 @@ module.exports = (req, res, next) => {
     const payload = verifyJWT(token, JWT_SECRET);
     req.user = payload;
   } catch (err) {
-    console.error(err.message); // allowed by our ESLint rule
-    return res.status(UNAUTHORIZED).send({ message: "Authorization required" });
+    console.error(err.message); // allowed by ESLint rule
+    return next(new UnauthorizedError("Authorization Required"));
   }
 
   return next();
