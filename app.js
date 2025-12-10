@@ -13,6 +13,9 @@ const errorHandler = require("./middlewares/error-handler");
 const app = express();
 const { PORT = 3001 } = process.env;
 
+// ----------------------
+// 🔹 Connect to MongoDB
+// ----------------------
 mongoose
   .connect("mongodb://127.0.0.1:27017/wtwr_db")
   .catch((err) => console.error(err));
@@ -20,26 +23,51 @@ mongoose
 app.use(cors());
 app.use(express.json());
 
-// 🔹 Log all incoming requests
+// ----------------------
+// 🔹 Log all requests
+// ----------------------
 app.use(requestLogger);
 
-// 🔹 Main routes
+// --------------------------------------------------
+// 🔥 Sprint 15 REQUIRED: Crash-Test Route
+// (Must be BEFORE /signin and /signup routes)
+// --------------------------------------------------
+app.get("/crash-test", () => {
+  setTimeout(() => {
+    throw new Error("Server will crash now");
+  }, 0);
+});
+
+// ----------------------
+// 🔹 Main application routes
+// ----------------------
 app.use("/", mainRouter);
 
-// 🔹 Log all errors that occur in routes/controllers
+// ----------------------
+// 🔹 Log all errors
+// ----------------------
 app.use(errorLogger);
 
-// 🔹 Fallback route — if no routes matched, throw a 404
+// ----------------------
+// 🔹 404 Handler
+// ----------------------
 app.use((req, res, next) => {
   next(new NotFoundError("Requested resource not found"));
 });
 
-// 🔹 celebrate error handler (for Joi/celebrate validation errors)
+// ----------------------
+// 🔹 Joi/Celebrate validation errors
+// ----------------------
 app.use(errors());
 
-// 🔹 Centralized error handler (for everything else)
+// ----------------------
+// 🔹 Centralized error handler
+// ----------------------
 app.use(errorHandler);
 
+// ----------------------
+// 🔹 Start server
+// ----------------------
 app.listen(PORT, () => {
   console.log(`App listening on port ${PORT}`);
 });
