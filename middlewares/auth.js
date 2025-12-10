@@ -2,7 +2,7 @@ const crypto = require("crypto");
 const { JWT_SECRET } = require("../utils/config");
 const { UnauthorizedError } = require("../utils/errors");
 
-// base64url → Buffer
+// base64url > Buffer
 const b64urlToBuffer = (str) => {
   const pad = 4 - (str.length % 4 || 4);
   const base64 = (str + "=".repeat(pad)).replace(/-/g, "+").replace(/_/g, "/");
