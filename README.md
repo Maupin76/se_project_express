@@ -7,22 +7,22 @@ The backend is fully deployed using Google Cloud VM, PM2, nginx, SSL (Certbot), 
 
 🌐 Deployed API Domain
 
-https://api.wtwr.weatherpixel.com
+https://api.recwtwr.crabdance.com
 
 All API routes (sign up, sign in, CRUD operations, likes) are available under this domain.
 
 Example:
-GET https://api.wtwr.weatherpixel.com/items
+GET https://api.recwtwr.crabdance.com/items
 
 🎨 Frontend Repository
 
 The GitHub repository for the frontend:
 
-👉 https://github.com/DouglasMaupin11/se_project_react
+👉 https://github.com/Maupin76/se_project_react
 
 🌍 Deployed Frontend Domain
 
-https://wtwr.weatherpixel.com
+https://wtwr.recwtwr.crabdance.com
 
 The deployed frontend communicates with the API through HTTPS using the api subdomain.
 
