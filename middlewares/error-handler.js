@@ -1,5 +1,3 @@
-// middlewares/error-handler.js
-
 // Centralized error-handling middleware
 module.exports = (err, req, res, next) => {
   // Always log full error for debugging

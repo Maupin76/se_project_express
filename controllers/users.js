@@ -2,34 +2,14 @@ const crypto = require("crypto");
 
 const User = require("../models/user");
 const { JWT_SECRET } = require("../utils/config");
+
 const {
-  BAD_REQUEST,
-  NOT_FOUND,
-  CONFLICT,
-  UNAUTHORIZED,
-  INTERNAL_SERVER_ERROR,
+  BadRequestError,
+  NotFoundError,
+  ConflictError,
+  UnauthorizedError,
+  InternalServerError,
 } = require("../utils/errors");
-
-// GET /users/me
-const getCurrentUser = (req, res) => {
-  const userId = req.user._id;
-
-  User.findById(userId)
-    .orFail()
-    .then((user) => res.status(200).send(user))
-    .catch((err) => {
-      console.error(err);
-      if (err.name === "CastError") {
-        return res.status(BAD_REQUEST).send({ message: "Invalid user ID" });
-      }
-      if (err.name === "DocumentNotFoundError") {
-        return res.status(NOT_FOUND).send({ message: "User not found" });
-      }
-      return res
-        .status(INTERNAL_SERVER_ERROR)
-        .send({ message: "An error has occurred on the server" });
-    });
-};
 
 // helper to hash using scrypt + random salt
 const hashPassword = (password) =>
@@ -44,15 +24,17 @@ const hashPassword = (password) =>
     });
   });
 
-// HS256 JWT with exp using Node's crypto (no extra deps)
+// base64url helpers
 const b64url = (buf) =>
   Buffer.from(buf)
     .toString("base64")
     .replace(/=/g, "")
     .replace(/\+/g, "-")
     .replace(/\//g, "_");
+
 const b64urlJSON = (obj) => b64url(JSON.stringify(obj));
 
+// HS256 JWT with exp using Node's crypto (no extra deps)
 const createJWT = (payload, secret) => {
   const header = { alg: "HS256", typ: "JWT" };
   const headerB64 = b64urlJSON(header);
@@ -63,8 +45,28 @@ const createJWT = (payload, secret) => {
   return `${data}.${sigB64}`;
 };
 
-// POST /signup (wired in routes/index.js)
-const createUser = (req, res) => {
+// GET /users/me
+const getCurrentUser = (req, res, next) => {
+  const userId = req.user._id;
+
+  User.findById(userId)
+    .orFail()
+    .then((user) => res.status(200).send(user))
+    .catch((err) => {
+      if (err.name === "CastError") {
+        return next(new BadRequestError("Invalid user ID"));
+      }
+      if (err.name === "DocumentNotFoundError") {
+        return next(new NotFoundError("User not found"));
+      }
+      return next(
+        new InternalServerError("An error has occurred on the server")
+      );
+    });
+};
+
+// POST /signup
+const createUser = (req, res, next) => {
   const { name, avatar, email, password } = req.body;
 
   hashPassword(password)
@@ -72,56 +74,47 @@ const createUser = (req, res) => {
     .then((user) => {
       const userObj = user.toObject();
       delete userObj.password;
-      return res.status(201).send(userObj);
+      res.status(201).send(userObj);
     })
     .catch((err) => {
-      console.error(err);
       if (err.code === 11000) {
-        return res
-          .status(CONFLICT)
-          .send({ message: "User with this email already exists" });
+        return next(new ConflictError("User with this email already exists"));
       }
       if (err.name === "ValidationError") {
-        return res
-          .status(BAD_REQUEST)
-          .send({ message: "Invalid data passed to create user" });
+        return next(new BadRequestError("Invalid data passed to create user"));
       }
-      return res
-        .status(INTERNAL_SERVER_ERROR)
-        .send({ message: "An error has occurred on the server" });
+      return next(
+        new InternalServerError("An error has occurred on the server")
+      );
     });
 };
 
-// POST /signin (wired in routes/index.js)
-const login = (req, res) => {
+// POST /signin
+const login = (req, res, next) => {
   const { email, password } = req.body;
-  const invalid = { message: "Incorrect email or password" };
 
   if (!email || !password) {
-    return res
-      .status(BAD_REQUEST)
-      .send({ message: "Email and password required" });
+    return next(new BadRequestError("Email and password required"));
   }
 
   return User.findUserByCredentials(email, password)
     .then((user) => {
       const exp = Math.floor(Date.now() / 1000) + 7 * 24 * 60 * 60; // 7 days
       const token = createJWT({ _id: user._id, exp }, JWT_SECRET);
-      return res.send({ token });
+      res.send({ token });
     })
     .catch((err) => {
-      console.error(err);
       if (err.name === "DocumentNotFoundError" || err.name === "AuthError") {
-        return res.status(UNAUTHORIZED).send(invalid);
+        return next(new UnauthorizedError("Incorrect email or password"));
       }
-      return res
-        .status(INTERNAL_SERVER_ERROR)
-        .send({ message: "An error has occurred on the server" });
+      return next(
+        new InternalServerError("An error has occurred on the server")
+      );
     });
 };
 
-// PATCH /users/me — update profile (name, avatar)
-const updateCurrentUser = (req, res) => {
+// PATCH /users/me
+const updateCurrentUser = (req, res, next) => {
   const { name, avatar } = req.body;
 
   User.findByIdAndUpdate(
@@ -132,18 +125,15 @@ const updateCurrentUser = (req, res) => {
     .orFail()
     .then((user) => res.status(200).send(user))
     .catch((err) => {
-      console.error(err);
       if (err.name === "ValidationError") {
-        return res
-          .status(BAD_REQUEST)
-          .send({ message: "Invalid data passed to update user" });
+        return next(new BadRequestError("Invalid data passed to update user"));
       }
       if (err.name === "DocumentNotFoundError") {
-        return res.status(NOT_FOUND).send({ message: "User not found" });
+        return next(new NotFoundError("User not found"));
       }
-      return res
-        .status(INTERNAL_SERVER_ERROR)
-        .send({ message: "An error has occurred on the server" });
+      return next(
+        new InternalServerError("An error has occurred on the server")
+      );
     });
 };
 

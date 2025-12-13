@@ -1,5 +1,3 @@
-// middlewares/validation.js
-
 const { celebrate, Joi } = require("celebrate");
 const validator = require("validator");
 
@@ -11,11 +9,6 @@ const validateURL = (value, helpers) => {
   return helpers.error("string.uri");
 };
 
-/**
- * 1. Validate clothing item body (when an item is created)
- * - name: required string, 2–30 characters
- * - imageUrl: required string, valid URL
- */
 module.exports.validateCardBody = celebrate({
   body: Joi.object().keys({
     name: Joi.string().required().min(2).max(30).messages({
@@ -39,13 +32,6 @@ module.exports.validateCardBody = celebrate({
   }),
 });
 
-/**
- * 2. Validate user body when a user is created (signup)
- * - name: optional string, 2–30 characters
- * - avatar: required string, valid URL
- * - email: required string, valid email
- * - password: required string
- */
 module.exports.validateUserBody = celebrate({
   body: Joi.object().keys({
     name: Joi.string().min(2).max(30).messages({
@@ -72,11 +58,6 @@ module.exports.validateUserBody = celebrate({
   }),
 });
 
-/**
- * 3. Validate auth body when a user logs in (signin)
- * - email: required string, valid email
- * - password: required string
- */
 module.exports.validateLoginBody = celebrate({
   body: Joi.object().keys({
     email: Joi.string().required().email().messages({
@@ -92,20 +73,25 @@ module.exports.validateLoginBody = celebrate({
   }),
 });
 
-/**
- * 4. Validate IDs (user and clothing item) when they are accessed
- * - id must be a 24-character hex string
- */
-/**
- * 4. Validate clothing item ID when it is accessed
- * - itemId must be a 24-character hex string
- */
 module.exports.validateItemId = celebrate({
   params: Joi.object().keys({
     itemId: Joi.string().hex().length(24).required().messages({
       "string.length": 'The "itemId" must be 24 characters long',
       "string.hex": 'The "itemId" must be a hexadecimal string',
       "any.required": 'The "itemId" parameter is required',
+    }),
+  }),
+});
+
+module.exports.validateUserUpdate = celebrate({
+  body: Joi.object().keys({
+    name: Joi.string().min(2).max(30).messages({
+      "string.min": 'The minimum length of the "name" field is 2',
+      "string.max": 'The maximum length of the "name" field is 30',
+    }),
+
+    avatar: Joi.string().custom(validateURL).messages({
+      "string.uri": 'The "avatar" field must be a valid url',
     }),
   }),
 });

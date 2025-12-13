@@ -1,107 +1,106 @@
-🧥 WTWR (What to Wear?) — Backend
-Sprint 15 — Full Stack Deployment
+# 🧥 WTWR (What to Wear?) — Backend
 
-This is the backend portion of the WTWR full-stack application.
+This repository contains the backend for the WTWR (What to Wear?) full-stack application.  
 It provides API endpoints for user authentication, clothing item management, likes, and user profile updates.
-The backend is fully deployed using Google Cloud VM, PM2, nginx, SSL (Certbot), and environment variables for secure production use.
 
-🌐 Deployed API Domain
+The backend is deployed on a Google Cloud Compute Engine virtual machine using PM2 and nginx as a reverse proxy.
 
-https://api.recwtwr.crabdance.com
+---
 
-All API routes (sign up, sign in, CRUD operations, likes) are available under this domain.
+## 🌐 Deployed API Domain
 
-Example:
-GET https://api.recwtwr.crabdance.com/items
+**Backend API (production):**
 
-🎨 Frontend Repository
+http://api.recwtwr.crabdance.com
 
-The GitHub repository for the frontend:
+All API routes (sign up, sign in, CRUD operations, likes, and user profile updates) are available under this domain.
 
-👉 https://github.com/Maupin76/se_project_react
+**Example request:**
 
-🌍 Deployed Frontend Domain
+GET http://api.recwtwr.crabdance.com/items
 
-https://wtwr.recwtwr.crabdance.com
+---
 
-The deployed frontend communicates with the API through HTTPS using the api subdomain.
+## 🎨 Frontend Repository
 
-<!-- 🎥 Project Pitch Video (applied in the next correction)
+The GitHub repository for the frontend application:
 
-(Fill this in with your YouTube or Google Drive link)
+https://github.com/DouglasMaupin11/se_project_react
 
-👉 Project Pitch Video: <insert your video link here>
+---
+
+## 🌍 Deployed Frontend Domain
+
+**Frontend (production):**
+
+http://recwtwr.crabdance.com
+
+The frontend communicates with the backend API through a dedicated API subdomain.
+
+---
+
+## 🎥 Project Pitch Video
+
+👉 Project Pitch Video: ADD_YOUR_VIDEO_LINK_HERE
 
 This video demonstrates:
 
-The deployed frontend
+- Deployed frontend
+- Deployed backend
+- User sign up and sign in
+- Adding and deleting clothing items
+- Liking and unliking items
+- Crash-test endpoint
+- nginx reverse proxy
+- PM2 auto-restart behavior
 
-The deployed backend
+---
 
-Sign up / sign in
+## 🚀 Technologies Used
 
-Adding / deleting items
+### Backend
 
-Liking items
+- Node.js
+- Express.js
+- MongoDB / Mongoose
+- Celebrate / Joi / Validator
+- Winston logging (request and error loggers)
+- Centralized error handling
+- Custom error classes
+- CORS
+- JSON Web Tokens (JWT)
 
-The crash-test endpoint
+### Deployment
 
-nginx HTTPS setup
+- Google Cloud Compute Engine VM
+- PM2 (process manager and auto-restart)
+- nginx reverse proxy
+- Environment variables for production secrets
 
-PM2 auto-restart behavior -->
+---
 
-🚀 Technologies Used
-Backend
+## 🛠 Crash Test Endpoint
 
-Node.js
-
-Express.js
-
-MongoDB / Mongoose
-
-Celebrate / Joi / Validator (validation middleware)
-
-Winston (logging: request + error loggers)
-
-Centralized error handling
-
-Custom error classes
-
-CORS
-
-JSON Web Tokens (JWT)
-
-Deployment
-
-Google Cloud Compute Engine VM
-
-PM2 (keeps server running + restarts on crash)
-
-nginx reverse proxy
-
-SSL certificates via Certbot
-
-Environment variables (.env) for production secrets
-
-🛠 Crash Test Endpoint
-
-For code review purposes (⚠ remove after review):
+For code review purposes only:
 
 GET /crash-test
 
-This triggers an intentional server crash.
-PM2 should automatically restart the app on the VM and restore functionality.
+This endpoint intentionally crashes the server.  
+PM2 automatically restarts the application and restores functionality.
 
-⚙️ Environment Variables
+---
 
-On the server only (.env file):
+## ⚙️ Environment Variables
 
-NODE_ENV=production
+Used on the server only (.env file, not committed):
+
+NODE_ENV=production  
 JWT_SECRET=your-strong-production-secret
 
-The .env file is not included in GitHub by design.
+---
 
-📁 Project Structure
+## 📁 Project Structure
+
 se_project_express/
 │
 ├── app.js
@@ -113,26 +112,44 @@ se_project_express/
 ├── models/
 ├── routes/
 ├── utils/
-│ └── errors.js
+│ └── errors/
+│ ├── BadRequestError.js
+│ ├── UnauthorizedError.js
+│ ├── ForbiddenError.js
+│ ├── NotFoundError.js
+│ ├── ConflictError.js
+│ ├── InternalServerError.js
+│ └── index.js
 ├── .env (production only, not committed)
 └── README.md
 
-🧪 How to Run Locally
+---
 
-1. Install dependencies
+## 🧪 How to Run Locally
+
+1. Install dependencies  
    npm install
 
-2. Create a .env file
-   NODE_ENV=development
+2. Create a .env file  
+   NODE_ENV=development  
    JWT_SECRET=dev-secret
 
-3. Start MongoDB
+3. Start MongoDB  
+   Ensure MongoDB is running locally.
 
-Ensure MongoDB is running locally.
-
-4. Run the server
+4. Run the server  
    npm run start
 
-or with nodemon:
+   or with nodemon:  
+   npm run dev
 
-npm run dev
+---
+
+## ✅ Notes for Reviewers
+
+- All request validation is handled with Celebrate/Joi middleware
+- All errors are thrown using custom error classes
+- Controllers do not send error responses directly
+- Centralized error handler processes all errors
+- PM2 ensures automatic recovery after crashes
+- nginx proxies client traffic to the Express application
