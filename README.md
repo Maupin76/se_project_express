@@ -11,13 +11,13 @@ The backend is deployed on a Google Cloud Compute Engine virtual machine using P
 
 **Backend API (production):**
 
-http://api.recwtwr.crabdance.com
+http://api.recwtwr.jumpingcrab.com
 
 All API routes (sign up, sign in, CRUD operations, likes, and user profile updates) are available under this domain.
 
 **Example request:**
 
-GET http://api.recwtwr.crabdance.com/items
+GET http://api.recwtwr.jumpingcrab.com/items
 
 ---
 
@@ -33,7 +33,7 @@ https://github.com/DouglasMaupin11/se_project_react
 
 **Frontend (production):**
 
-http://recwtwr.crabdance.com
+http://recwtwr.jumpingcrab.com
 
 The frontend communicates with the backend API through a dedicated API subdomain.
 
