@@ -41,7 +41,7 @@ The frontend communicates with the backend API through a dedicated API subdomain
 
 ## 🎥 Project Pitch Video
 
-👉 Project Pitch Video: ADD_YOUR_VIDEO_LINK_HERE
+👉 Project Pitch Video: https://youtu.be/nh7VEFq4lic
 
 This video demonstrates:
 
